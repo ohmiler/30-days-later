@@ -1,0 +1,30 @@
+[gd_scene format=3]
+
+[ext_resource type="Shader" path="res://world/shaders/see_through.gdshader" id="1_see_through"]
+
+[sub_resource type="StandardMaterial3D" id="Mat_trunk"]
+albedo_color = Color(0.33, 0.22, 0.13, 1)
+
+[sub_resource type="ShaderMaterial" id="Mat_leaves"]
+render_priority = 0
+shader = ExtResource("1_see_through")
+shader_parameter/albedo = Color(0.2, 0.42, 0.18, 1)
+shader_parameter/roughness = 1.0
+shader_parameter/cutout_radius = 2.2
+
+[node name="Tree" type="Node3D"]
+
+[node name="Trunk" type="CSGCylinder3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.25, 0)
+use_collision = true
+radius = 0.2
+height = 2.5
+sides = 10
+material = SubResource("Mat_trunk")
+
+[node name="Leaves" type="CSGSphere3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3.2, 0)
+radius = 1.5
+radial_segments = 12
+rings = 8
+material = SubResource("Mat_leaves")

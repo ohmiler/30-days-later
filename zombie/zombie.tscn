@@ -1,0 +1,72 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://zombie/zombie.gd" id="1_zombie"]
+[ext_resource type="Script" path="res://components/health.gd" id="2_health"]
+
+[sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
+radius = 0.3
+height = 1.7
+
+[sub_resource type="CapsuleMesh" id="CapsuleMesh_body"]
+radius = 0.3
+height = 1.7
+
+[sub_resource type="StandardMaterial3D" id="Mat_clothes"]
+resource_local_to_scene = true
+albedo_color = Color(0.38, 0.34, 0.27, 1)
+
+[sub_resource type="StandardMaterial3D" id="Mat_skin"]
+albedo_color = Color(0.55, 0.63, 0.45, 1)
+
+[sub_resource type="BoxMesh" id="BoxMesh_face"]
+material = SubResource("Mat_skin")
+size = Vector3(0.3, 0.16, 0.16)
+
+[sub_resource type="BoxMesh" id="BoxMesh_arm"]
+material = SubResource("Mat_skin")
+size = Vector3(0.12, 0.12, 0.6)
+
+[node name="Zombie" type="CharacterBody3D" groups=["zombies"]]
+collision_layer = 4
+collision_mask = 7
+script = ExtResource("1_zombie")
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+shape = SubResource("CapsuleShape3D_body")
+
+[node name="Model" type="Node3D" parent="."]
+
+[node name="Body" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.85, 0)
+mesh = SubResource("CapsuleMesh_body")
+material_override = SubResource("Mat_clothes")
+
+[node name="Face" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, -0.24)
+mesh = SubResource("BoxMesh_face")
+
+[node name="ArmL" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.22, 1.25, -0.4)
+mesh = SubResource("BoxMesh_arm")
+
+[node name="ArmR" type="MeshInstance3D" parent="Model"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.22, 1.25, -0.4)
+mesh = SubResource("BoxMesh_arm")
+
+[node name="NavigationAgent3D" type="NavigationAgent3D" parent="."]
+path_desired_distance = 0.5
+target_desired_distance = 0.6
+radius = 0.3
+
+[node name="Health" type="Node" parent="."]
+script = ExtResource("2_health")
+
+[node name="StateLabel" type="Label3D" parent="."]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 2.2, 0)
+pixel_size = 0.008
+billboard = 1
+modulate = Color(1, 0.25, 0.2, 1)
+outline_modulate = Color(0, 0, 0, 1)
+font_size = 64
+outline_size = 16

@@ -76,6 +76,7 @@ var _footstep_left := 0.0
 
 
 func _ready() -> void:
+	add_to_group(SaveSystem.PERSIST_GROUP)
 	health.died.connect(_on_died)
 	inventory.changed.connect(_on_inventory_changed)
 	weapon_pivot.rotation = WEAPON_REST
@@ -204,15 +205,43 @@ func use_item(item: ItemData) -> void:
 			say("%s%sแล้ว" % [item.get_use_verb(), item.display_name])
 
 
-func equip(item: ItemData) -> void:
+func equip(item: ItemData, announce := true) -> void:
 	equipped_weapon = item
 	_update_weapon_visual()
-	say("ถือ" + item.display_name)
+	if announce:
+		say("ถือ" + item.display_name)
 
 
 func unequip() -> void:
 	equipped_weapon = null
 	_update_weapon_visual()
+
+
+## ข้อมูลที่ต้องบันทึก (SaveSystem เรียกตอนเซฟ)
+func save_data() -> Dictionary:
+	return {
+		"position": SaveSystem.vec_to_array(global_position),
+		"rotation_y": rotation.y,
+		"health": health.current,
+		"needs": needs.save_data(),
+		"inventory": inventory.save_data(),
+		"equipped": equipped_weapon.resource_path if equipped_weapon else "",
+	}
+
+
+## คืนสภาพจากเซฟ (SaveSystem เรียกตอนโหลด)
+func load_data(data: Dictionary) -> void:
+	global_position = SaveSystem.array_to_vec(data.position)
+	rotation.y = data.rotation_y
+	reset_physics_interpolation()  # วาร์ปไปเลย ไม่ต้องค่อยๆ เลื่อนจากจุดเกิด
+	health.restore(data.health)
+	needs.load_data(data.needs)
+	inventory.load_data(data.inventory)
+	unequip()
+	if data.equipped != "":
+		var weapon := load(data.equipped) as ItemData
+		if weapon and inventory.has(weapon):
+			equip(weapon, false)
 
 
 ## ถ้าอาวุธที่ถืออยู่ถูกย้ายออกจากกระเป๋า (เช่นเอาไปใส่ตู้) ก็ต้องปล่อยมือ

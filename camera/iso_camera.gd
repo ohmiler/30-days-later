@@ -44,6 +44,12 @@ func _process(delta: float) -> void:
 	camera.size = lerpf(camera.size, zoom, minf(10.0 * delta, 1.0))
 
 
+## กระโดดไปที่เป้าหมายทันที (เช่นหลังโหลดเซฟ ผู้เล่นวาร์ปไปที่อื่น)
+func snap_to_target() -> void:
+	if target:
+		global_position = target.global_position
+
+
 func _unhandled_input(event: InputEvent) -> void:
 	if event.is_action_pressed("zoom_in"):
 		zoom = clampf(zoom - zoom_step, min_zoom, max_zoom)

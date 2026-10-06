@@ -60,6 +60,22 @@ func transfer_to(item: ItemData, other: Inventory) -> bool:
 	return true
 
 
+## บันทึกเป็นรายชื่อไฟล์ไอเทม เช่น ["res://items/apple.tres", ...]
+func save_data() -> Array:
+	return items.map(func(item: ItemData) -> String: return item.resource_path)
+
+
+func load_data(paths: Array) -> void:
+	items.clear()
+	for path: String in paths:
+		var item := load(path) as ItemData
+		if item:
+			items.append(item)
+		else:
+			push_warning("ไม่พบไฟล์ไอเทม %s (ถูกลบหรือเปลี่ยนชื่อ?)" % path)
+	changed.emit()
+
+
 ## รวมของชนิดเดียวกันเป็นกองเดียวไว้แสดงผล: [{"item": ItemData, "count": 2}, ...]
 func get_stacks() -> Array[Dictionary]:
 	var stacks: Array[Dictionary] = []

@@ -28,6 +28,12 @@ func take_damage(amount: float) -> void:
 		died.emit()
 
 
+## ตั้งค่าเลือดตรงๆ (ใช้ตอนโหลดเซฟ)
+func restore(value: float) -> void:
+	current = clampf(value, 0.0, max_health)
+	changed.emit(current, max_health)
+
+
 func heal(amount: float) -> void:
 	if is_dead or amount <= 0.0 or current >= max_health:
 		return

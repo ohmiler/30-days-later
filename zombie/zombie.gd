@@ -73,7 +73,30 @@ func _ready() -> void:
 	_apply_fade()  # เริ่มเกมมาแบบมองไม่เห็น จนกว่าผู้เล่นจะมองมาเจอ
 	health.died.connect(_die)
 	NoiseBus.noise_made.connect(_on_noise)
+	add_to_group(SaveSystem.PERSIST_GROUP)
 	_enter_state(State.IDLE)
+
+
+func save_data() -> Dictionary:
+	return {
+		"position": SaveSystem.vec_to_array(global_position),
+		"rotation_y": rotation.y,
+		"health": health.current,
+		"dead": state == State.DEAD,
+	}
+
+
+## ซอมบี้ที่ตายไปแล้วในเซฟ จะกลับมาเป็นศพ ณ ที่เดิม (ไม่ฟื้นขึ้นมาใหม่)
+func load_data(data: Dictionary) -> void:
+	global_position = SaveSystem.array_to_vec(data.position)
+	rotation.y = data.rotation_y
+	reset_physics_interpolation()
+	home = global_position
+	if data.dead:
+		health.take_damage(health.current)  # เลือดหมด → _die() ทำงานเหมือนตายจริง
+	else:
+		health.restore(data.health)
+		_enter_state(State.IDLE)
 
 
 ## PlayerVision เรียกทุกเฟรมเพื่อบอกว่าผู้เล่นมองเห็นซอมบี้ตัวนี้ไหม

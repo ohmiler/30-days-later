@@ -2,6 +2,7 @@
 
 [ext_resource type="Script" path="res://ui/hud.gd" id="1_hud"]
 [ext_resource type="PackedScene" path="res://ui/inventory_screen.tscn" id="2_inventory"]
+[ext_resource type="PackedScene" path="res://ui/pause_menu.tscn" id="3_pause"]
 
 [sub_resource type="StyleBoxFlat" id="StyleBox_bar_bg"]
 bg_color = Color(0.08, 0.08, 0.08, 0.85)
@@ -82,7 +83,7 @@ vertical_alignment = 1
 offset_left = 16.0
 offset_top = 12.0
 offset_right = 380.0
-offset_bottom = 196.0
+offset_bottom = 222.0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16
@@ -92,6 +93,7 @@ Shift ค้าง — วิ่ง (เสียงดัง! ใช้แร�
 คลิกซ้าย — ฟัน
 E — ใช้ของ / ค้นตู้ (ดื่มน้ำ / นอน / หาของ)
 Tab หรือ I — เปิดกระเป๋า
+Esc — หยุดเกม / บันทึก
 ลูกกลิ้งเมาส์ / + - — ซูม"
 
 [node name="Clock" type="Label" parent="."]
@@ -334,3 +336,5 @@ text = "คุณตายแล้ว
 กด R เพื่อเริ่มใหม่"
 horizontal_alignment = 1
 vertical_alignment = 1
+
+[node name="PauseMenu" parent="." instance=ExtResource("3_pause")]

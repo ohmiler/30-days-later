@@ -31,6 +31,15 @@ func _process(delta: float) -> void:
 		day += 1
 
 
+func save_data() -> Dictionary:
+	return {"day": day, "minutes": minutes}
+
+
+func load_data(data: Dictionary) -> void:
+	day = int(data.day)
+	minutes = data.minutes
+
+
 ## แปลงเวลาจริง (delta วินาที) เป็นจำนวน "ชั่วโมงในเกม" ที่ผ่านไป ใช้คำนวณความหิว ฯลฯ
 func hours_from(delta: float) -> float:
 	return delta * minutes_per_second * time_scale / 60.0

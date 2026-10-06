@@ -12,13 +12,14 @@ config_version=5
 
 config/name="30 Days Later"
 config/description="เกมเอาชีวิตรอดจากซอมบี้ แนว Project Zomboid"
-run/main_scene="res://game/main.tscn"
+run/main_scene="res://ui/main_menu.tscn"
 config/features=PackedStringArray("4.7", "Forward Plus")
 
 [autoload]
 
 NoiseBus="*res://core/noise_bus.gd"
 GameClock="*res://core/game_clock.gd"
+SaveSystem="*res://core/save_system.gd"
 
 [display]
 

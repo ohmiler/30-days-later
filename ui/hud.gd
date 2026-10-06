@@ -20,6 +20,7 @@ var _toast_tween: Tween
 @onready var zombie_count: Label = $ZombieCount
 @onready var equipped_label: Label = $Equipped
 @onready var inventory_screen: Control = $InventoryScreen
+@onready var pause_menu: Control = $PauseMenu
 @onready var death_screen: Control = $DeathScreen
 
 
@@ -32,9 +33,12 @@ func _ready() -> void:
 	health_bar.value = player.health.current
 	player.health.changed.connect(_on_player_health_changed)
 	player.health.died.connect(_on_player_died)
+	player.attacked.connect(_flash_damage)
 	player.message.connect(_show_toast)
 	player.sleep_changed.connect(_on_sleep_changed)
+	SaveSystem.saved.connect(_show_toast.bind("บันทึกเกมแล้ว"))
 	inventory_screen.setup(player)
+	pause_menu.setup(player)
 
 
 func _process(_delta: float) -> void:
@@ -94,11 +98,13 @@ func _show_toast(text: String) -> void:
 
 
 func _on_player_health_changed(current: float, _maximum: float) -> void:
-	# กระพริบแดงเฉพาะตอนโดนแรงๆ (ไม่ใช่เลือดค่อยๆ ลดจากความหิว)
-	if current < health_bar.value - 1.0:
-		damage_flash.modulate.a = 1.0
-		create_tween().tween_property(damage_flash, "modulate:a", 0.0, 0.4)
 	health_bar.value = current
+
+
+## จอแดงเฉพาะตอนโดนโจมตีจริง (ไม่ใช่เลือดลดจากความหิว หรือตอนโหลดเซฟ)
+func _flash_damage() -> void:
+	damage_flash.modulate.a = 1.0
+	create_tween().tween_property(damage_flash, "modulate:a", 0.0, 0.4)
 
 
 func _on_sleep_changed(sleeping: bool) -> void:

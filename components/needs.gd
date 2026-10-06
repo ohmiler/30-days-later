@@ -64,6 +64,17 @@ func tick(delta: float, is_running: bool, is_moving: bool, is_sleeping: bool) ->
 		health.heal(health_regen * hours)
 
 
+func save_data() -> Dictionary:
+	return {"hunger": hunger, "thirst": thirst, "fatigue": fatigue, "endurance": endurance}
+
+
+func load_data(data: Dictionary) -> void:
+	hunger = data.hunger
+	thirst = data.thirst
+	fatigue = data.fatigue
+	endurance = data.endurance
+
+
 func can_run() -> bool:
 	return not _winded and fatigue < TOO_TIRED_TO_RUN
 

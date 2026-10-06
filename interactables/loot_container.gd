@@ -17,6 +17,7 @@ var _searched := false
 
 func _ready() -> void:
 	super()  # ให้ Interactable._ready() เพิ่มตัวเองเข้ากลุ่ม "interactables" ด้วย
+	add_to_group(SaveSystem.PERSIST_GROUP)
 	inventory = Inventory.new()
 	inventory.name = "Inventory"
 	inventory.capacity = capacity
@@ -26,6 +27,16 @@ func _ready() -> void:
 	if not possible_items.is_empty():
 		for i in randi_range(min_items, max_items):
 			inventory.add(possible_items.pick_random())
+
+
+func save_data() -> Dictionary:
+	return {"items": inventory.save_data(), "searched": _searched}
+
+
+## ของในตู้ตามเซฟจะแทนที่ของที่เพิ่งสุ่มมาตอน _ready
+func load_data(data: Dictionary) -> void:
+	inventory.load_data(data.items)
+	_searched = data.searched
 
 
 func get_prompt() -> String:

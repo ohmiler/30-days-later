@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "มันฝรั่งทอด"
+description = "ขนมกรอบเค็มๆ แก้หิวได้นิดหน่อย แต่กินแล้วคอแห้ง"
+category = 0
+weight = 0.2
+color = Color(0.95, 0.8, 0.25, 1)
+hunger_relief = 12.0
+thirst_relief = -5.0

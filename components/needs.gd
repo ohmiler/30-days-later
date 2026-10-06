@@ -72,12 +72,13 @@ func is_winded() -> bool:
 	return _winded
 
 
+## amount ติดลบได้ (เช่นขนมเค็มทำให้กระหายขึ้น)
 func eat(amount: float) -> void:
-	hunger = maxf(hunger - amount, 0.0)
+	hunger = clampf(hunger - amount, 0.0, 100.0)
 
 
 func drink(amount: float) -> void:
-	thirst = maxf(thirst - amount, 0.0)
+	thirst = clampf(thirst - amount, 0.0, 100.0)
 
 
 func use_endurance(amount: float) -> void:

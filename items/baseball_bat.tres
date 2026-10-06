@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "ไม้เบสบอล"
+description = "อาวุธคู่ใจของผู้รอดชีวิต หนักมือ ตีแรง"
+category = 3
+weight = 1.5
+color = Color(0.62, 0.45, 0.25, 1)
+damage = 40.0
+attack_cooldown = 0.65
+weapon_length = 0.9

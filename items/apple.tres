@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "แอปเปิล"
+description = "ผลไม้สด แก้หิวและชุ่มคอเล็กน้อย"
+category = 0
+weight = 0.2
+color = Color(0.85, 0.15, 0.15, 1)
+hunger_relief = 10.0
+thirst_relief = 5.0

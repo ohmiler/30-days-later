@@ -6,8 +6,8 @@
 [ext_resource type="PackedScene" path="res://zombie/zombie.tscn" id="4_zombie"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://vision/player_vision.tscn" id="6_vision"]
-[ext_resource type="Script" path="res://game/main.gd" id="7_main"]
-[ext_resource type="Script" path="res://world/day_night.gd" id="8_day_night"]
+[ext_resource type="Script" uid="uid://bqv0y7sqv0x4o" path="res://game/main.gd" id="7_main"]
+[ext_resource type="Script" uid="uid://bknw5xqe7t2fq" path="res://world/day_night.gd" id="8_day_night"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -29,54 +29,54 @@ transform = Transform3D(0.819152, 0.469846, -0.32899, 0, 0.573576, 0.819152, 0.5
 light_energy = 1.1
 shadow_enabled = true
 
-[node name="DayNight" type="Node" parent="." node_paths=PackedStringArray("sun", "world_environment")]
+[node name="DayNight" type="Node" parent="." unique_id=2117097580 node_paths=PackedStringArray("sun", "world_environment")]
 script = ExtResource("8_day_night")
 sun = NodePath("../Sun")
 world_environment = NodePath("../WorldEnvironment")
 
 [node name="TestMap" parent="." unique_id=1707897509 instance=ExtResource("1_map")]
-transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0019731522, 0.009959698, -0.0038900375)
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0062537193, 0.018352985, -0.006422043)
 
 [node name="Player" parent="." unique_id=818378566 instance=ExtResource("2_player")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 2, 0, 2)
 
-[node name="Zombies" type="Node3D" parent="."]
+[node name="Zombies" type="Node3D" parent="." unique_id=1036009670]
 
-[node name="Zombie1" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie1" parent="Zombies" unique_id=1275255178 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -2.5)
 
-[node name="Zombie2" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie2" parent="Zombies" unique_id=1963531450 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 10.5, 0, -5)
 
-[node name="Zombie3" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie3" parent="Zombies" unique_id=636141414 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -3, 0, -10)
 
-[node name="Zombie4" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie4" parent="Zombies" unique_id=956825131 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 8, 0, -10.5)
 
-[node name="Zombie5" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie5" parent="Zombies" unique_id=954349878 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -14, 0, 14)
 
-[node name="Zombie6" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie6" parent="Zombies" unique_id=2108732864 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 6, 0, 15)
 
-[node name="Zombie7" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie7" parent="Zombies" unique_id=2088828758 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 20, 0, 8)
 
-[node name="Zombie8" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie8" parent="Zombies" unique_id=1940771466 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -20, 0, 2)
 
-[node name="Zombie9" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie9" parent="Zombies" unique_id=1850045522 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 22, 0, -6)
 
-[node name="Zombie10" parent="Zombies" instance=ExtResource("4_zombie")]
+[node name="Zombie10" parent="Zombies" unique_id=202967149 instance=ExtResource("4_zombie")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -8)
 
 [node name="IsoCamera" parent="." unique_id=2033072276 node_paths=PackedStringArray("target") instance=ExtResource("3_camera")]
 target = NodePath("../Player")
 
-[node name="PlayerVision" parent="." node_paths=PackedStringArray("player") instance=ExtResource("6_vision")]
+[node name="PlayerVision" parent="." unique_id=598697796 node_paths=PackedStringArray("player") instance=ExtResource("6_vision")]
 player = NodePath("../Player")
 
-[node name="HUD" parent="." node_paths=PackedStringArray("player") instance=ExtResource("5_hud")]
+[node name="HUD" parent="." unique_id=1565651937 node_paths=PackedStringArray("player") instance=ExtResource("5_hud")]
 player = NodePath("../Player")

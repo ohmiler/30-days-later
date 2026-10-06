@@ -10,7 +10,16 @@
 [ext_resource type="PackedScene" path="res://world/props/fridge.tscn" id="8_fridge"]
 [ext_resource type="PackedScene" path="res://world/props/sink.tscn" id="9_sink"]
 [ext_resource type="PackedScene" path="res://world/props/bed.tscn" id="10_bed"]
-[ext_resource type="Script" path="res://interactables/food_source.gd" id="11_food"]
+[ext_resource type="Script" path="res://interactables/loot_container.gd" id="11_loot"]
+[ext_resource type="Script" path="res://items/item_data.gd" id="12_item_data"]
+[ext_resource type="Resource" path="res://items/canned_beans.tres" id="13_beans"]
+[ext_resource type="Resource" path="res://items/chips.tres" id="14_chips"]
+[ext_resource type="Resource" path="res://items/soda.tres" id="15_soda"]
+[ext_resource type="Resource" path="res://items/water_bottle.tres" id="16_water"]
+[ext_resource type="Resource" path="res://items/bandage.tres" id="17_bandage"]
+[ext_resource type="Resource" path="res://items/kitchen_knife.tres" id="18_knife"]
+[ext_resource type="Resource" path="res://items/baseball_bat.tres" id="19_bat"]
+[ext_resource type="Resource" path="res://items/crowbar.tres" id="20_crowbar"]
 
 [sub_resource type="ShaderMaterial" id="Mat_roof_red"]
 render_priority = 0
@@ -191,6 +200,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.5, 0.8)
 size = Vector3(0.5, 1, 1.2)
 material = SubResource("Mat_wood")
 
+[node name="KitchenCupboard" type="Node3D" parent="HouseA/Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4.4, 0, 1.6)
+script = ExtResource("11_loot")
+display_name = "ตู้ในครัว"
+focus_height = 0.6
+possible_items = Array[ExtResource("12_item_data")]([ExtResource("13_beans"), ExtResource("13_beans"), ExtResource("14_chips"), ExtResource("15_soda"), ExtResource("18_knife")])
+min_items = 1
+max_items = 4
+
+[node name="StorageCabinet" type="Node3D" parent="HouseA/Furniture"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0, 0.8)
+script = ExtResource("11_loot")
+display_name = "ตู้เก็บของ"
+focus_height = 0.8
+possible_items = Array[ExtResource("12_item_data")]([ExtResource("17_bandage"), ExtResource("17_bandage"), ExtResource("14_chips")])
+max_items = 2
+guaranteed_items = Array[ExtResource("12_item_data")]([ExtResource("19_bat")])
+
 [node name="Fridge" parent="HouseA" instance=ExtResource("8_fridge")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.5, 0, -3.4)
 
@@ -275,12 +302,14 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.375, -0.5)
 size = Vector3(1, 0.75, 1)
 material = SubResource("Mat_wood")
 
-[node name="ShelfFood" type="Node3D" parent="HouseB"]
+[node name="Shelf" type="Node3D" parent="HouseB/Furniture"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.5, 0, -3)
-script = ExtResource("11_food")
+script = ExtResource("11_loot")
 display_name = "ชั้นวางของ"
-food_name = "อาหารกระป๋อง"
-focus_height = 1.1
+focus_height = 0.8
+possible_items = Array[ExtResource("12_item_data")]([ExtResource("13_beans"), ExtResource("13_beans"), ExtResource("14_chips"), ExtResource("16_water"), ExtResource("15_soda"), ExtResource("18_knife")])
+min_items = 2
+max_items = 5
 
 [node name="Roof" type="CSGPolygon3D" parent="HouseB"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 3.9)
@@ -342,3 +371,11 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -2, 0, 12)
 
 [node name="Tree5" parent="." instance=ExtResource("4_tree")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 12, 0, 12)
+
+[node name="CrateLoot" type="Node3D" parent="Crates"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.45, 0, -0.05)
+script = ExtResource("11_loot")
+display_name = "ลังไม้"
+focus_height = 1.0
+possible_items = Array[ExtResource("12_item_data")]([ExtResource("19_bat"), ExtResource("20_crowbar"), ExtResource("16_water"), ExtResource("13_beans"), ExtResource("17_bandage")])
+max_items = 2

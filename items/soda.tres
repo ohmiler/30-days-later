@@ -1,0 +1,13 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "น้ำอัดลม"
+description = "หวานซ่า ชื่นใจ"
+category = 1
+weight = 0.4
+color = Color(0.6, 0.12, 0.15, 1)
+hunger_relief = 3.0
+thirst_relief = 30.0

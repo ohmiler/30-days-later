@@ -1,0 +1,142 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://ui/inventory_screen.gd" id="1_screen"]
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_panel"]
+content_margin_left = 18.0
+content_margin_top = 16.0
+content_margin_right = 18.0
+content_margin_bottom = 14.0
+bg_color = Color(0.08, 0.08, 0.09, 0.94)
+border_width_left = 2
+border_width_top = 2
+border_width_right = 2
+border_width_bottom = 2
+border_color = Color(0.4, 0.36, 0.28, 1)
+corner_radius_top_left = 6
+corner_radius_top_right = 6
+corner_radius_bottom_right = 6
+corner_radius_bottom_left = 6
+
+[node name="InventoryScreen" type="Control"]
+layout_mode = 3
+anchors_preset = 15
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+script = ExtResource("1_screen")
+
+[node name="Panel" type="PanelContainer" parent="."]
+layout_mode = 1
+anchors_preset = 8
+anchor_left = 0.5
+anchor_top = 0.5
+anchor_right = 0.5
+anchor_bottom = 0.5
+offset_left = -430.0
+offset_top = -250.0
+offset_right = 430.0
+offset_bottom = 250.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_styles/panel = SubResource("StyleBox_panel")
+
+[node name="VBox" type="VBoxContainer" parent="Panel"]
+layout_mode = 2
+theme_override_constants/separation = 10
+
+[node name="Columns" type="HBoxContainer" parent="Panel/VBox"]
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_constants/separation = 24
+
+[node name="PlayerSide" type="VBoxContainer" parent="Panel/VBox/Columns"]
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="Title" type="Label" parent="Panel/VBox/Columns/PlayerSide"]
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "กระเป๋าของคุณ"
+
+[node name="PlayerWeight" type="Label" parent="Panel/VBox/Columns/PlayerSide"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+text = "น้ำหนัก 0.0 / 12.0 กก."
+
+[node name="PlayerList" type="ItemList" parent="Panel/VBox/Columns/PlayerSide"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="Buttons" type="HBoxContainer" parent="Panel/VBox/Columns/PlayerSide"]
+layout_mode = 2
+
+[node name="UseButton" type="Button" parent="Panel/VBox/Columns/PlayerSide/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+text = "ใช้"
+
+[node name="StoreButton" type="Button" parent="Panel/VBox/Columns/PlayerSide/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "ใส่ที่เก็บ →"
+
+[node name="LootSide" type="VBoxContainer" parent="Panel/VBox/Columns"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_horizontal = 3
+
+[node name="LootTitle" type="Label" parent="Panel/VBox/Columns/LootSide"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_font_sizes/font_size = 20
+text = "ที่เก็บของ"
+
+[node name="LootInfo" type="Label" parent="Panel/VBox/Columns/LootSide"]
+unique_name_in_owner = true
+layout_mode = 2
+theme_override_colors/font_color = Color(0.7, 0.7, 0.65, 1)
+theme_override_font_sizes/font_size = 14
+
+[node name="LootList" type="ItemList" parent="Panel/VBox/Columns/LootSide"]
+unique_name_in_owner = true
+layout_mode = 2
+size_flags_vertical = 3
+theme_override_font_sizes/font_size = 16
+
+[node name="Buttons" type="HBoxContainer" parent="Panel/VBox/Columns/LootSide"]
+layout_mode = 2
+
+[node name="TakeButton" type="Button" parent="Panel/VBox/Columns/LootSide/Buttons"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(110, 0)
+layout_mode = 2
+text = "← หยิบ"
+
+[node name="TakeAllButton" type="Button" parent="Panel/VBox/Columns/LootSide/Buttons"]
+unique_name_in_owner = true
+layout_mode = 2
+text = "หยิบทั้งหมด"
+
+[node name="Description" type="Label" parent="Panel/VBox"]
+unique_name_in_owner = true
+custom_minimum_size = Vector2(0, 52)
+layout_mode = 2
+theme_override_colors/font_color = Color(0.88, 0.86, 0.8, 1)
+theme_override_font_sizes/font_size = 15
+text = "เลือกไอเทมเพื่อดูรายละเอียด"
+autowrap_mode = 3
+
+[node name="Hint" type="Label" parent="Panel/VBox"]
+layout_mode = 2
+theme_override_colors/font_color = Color(0.55, 0.55, 0.5, 1)
+theme_override_font_sizes/font_size = 13
+text = "ดับเบิลคลิก = ใช้ / หยิบ      Tab, I หรือ Esc = ปิด      ระหว่างนี้เวลายังเดินต่อ ระวังซอมบี้!"
+horizontal_alignment = 1

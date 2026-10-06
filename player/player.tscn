@@ -3,6 +3,10 @@
 [ext_resource type="Script" path="res://player/player.gd" id="1_player"]
 [ext_resource type="Script" path="res://components/health.gd" id="2_health"]
 [ext_resource type="Script" path="res://components/needs.gd" id="3_needs"]
+[ext_resource type="Script" path="res://components/inventory.gd" id="4_inventory"]
+[ext_resource type="Script" path="res://items/item_data.gd" id="5_item_data"]
+[ext_resource type="Resource" path="res://items/water_bottle.tres" id="6_water"]
+[ext_resource type="Resource" path="res://items/chips.tres" id="7_chips"]
 
 [sub_resource type="CapsuleShape3D" id="CapsuleShape3D_body"]
 radius = 0.3
@@ -23,11 +27,11 @@ albedo_color = Color(0.92, 0.76, 0.62, 1)
 material = SubResource("Mat_skin")
 size = Vector3(0.3, 0.16, 0.16)
 
-[sub_resource type="StandardMaterial3D" id="Mat_bat"]
+[sub_resource type="StandardMaterial3D" id="Mat_weapon"]
 albedo_color = Color(0.55, 0.4, 0.22, 1)
 
-[sub_resource type="BoxMesh" id="BoxMesh_bat"]
-material = SubResource("Mat_bat")
+[sub_resource type="BoxMesh" id="BoxMesh_weapon"]
+material = SubResource("Mat_weapon")
 size = Vector3(0.08, 0.08, 0.9)
 
 [sub_resource type="BoxShape3D" id="BoxShape3D_attack"]
@@ -53,11 +57,12 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.45, -0.24)
 mesh = SubResource("BoxMesh_face")
 
 [node name="WeaponPivot" type="Node3D" parent="Model"]
+visible = false
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0.32, 1.05, -0.1)
 
-[node name="Bat" type="MeshInstance3D" parent="Model/WeaponPivot"]
+[node name="Weapon" type="MeshInstance3D" parent="Model/WeaponPivot"]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0, -0.45)
-mesh = SubResource("BoxMesh_bat")
+mesh = SubResource("BoxMesh_weapon")
 
 [node name="AttackArea" type="Area3D" parent="."]
 collision_layer = 0
@@ -74,3 +79,7 @@ script = ExtResource("2_health")
 [node name="Needs" type="Node" parent="." node_paths=PackedStringArray("health")]
 script = ExtResource("3_needs")
 health = NodePath("../Health")
+
+[node name="Inventory" type="Node" parent="."]
+script = ExtResource("4_inventory")
+starting_items = Array[ExtResource("5_item_data")]([ExtResource("6_water"), ExtResource("7_chips")])

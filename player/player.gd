@@ -1,11 +1,15 @@
 class_name Player
 extends CharacterBody3D
 ## ตัวละครผู้เล่น: เดิน วิ่ง เล็ง (คลิกขวาค้าง = หันตามเมาส์ เหมือน Project Zomboid) ฟัน (คลิกซ้าย)
-## และใช้ของรอบตัว (กด E: ดื่มน้ำ กินอาหาร นอน)
+## ใช้ของรอบตัว (กด E: ดื่มน้ำ นอน ค้นตู้) และมีกระเป๋าเก็บไอเทม/ถืออาวุธ
 
 ## ข้อความสั้นๆ ที่ตัวละครอยากบอกผู้เล่น (HUD จะแสดงขึ้นจอ)
 signal message(text: String)
 signal sleep_changed(sleeping: bool)
+## ถูกโจมตี (เช่นโดนซอมบี้กัด) — หน้าต่างกระเป๋าใช้ปิดตัวเองทันที
+signal attacked
+## ผู้เล่นกด E ที่ตู้/ลัง: ให้หน้าต่างกระเป๋าเปิดขึ้นมาพร้อมของในที่เก็บนั้น
+signal loot_requested(container: LootContainer)
 
 @export_group("Movement")
 ## ความเร็วเดิน (เมตร/วินาที)
@@ -20,9 +24,10 @@ signal sleep_changed(sleeping: bool)
 @export var turn_speed := 12.0
 
 @export_group("Combat")
-@export var attack_damage := 34.0
-## ต้องรอกี่วินาทีถึงจะฟันครั้งต่อไปได้
-@export var attack_cooldown := 0.6
+## ความแรงตอนมือเปล่า (ผลัก) — อาวุธจริงใช้ค่าจาก ItemData ของอาวุธนั้น
+@export var unarmed_damage := 8.0
+## มือเปล่า: ต้องรอกี่วินาทีถึงจะผลักครั้งต่อไปได้
+@export var unarmed_cooldown := 0.5
 ## ฟันโดนหลังจากกดไปกี่วินาที (ตรงกลางท่าเหวี่ยง)
 @export var attack_windup := 0.1
 ## แรงผลักซอมบี้ให้ถอยหลังเมื่อโดนตี
@@ -50,8 +55,12 @@ var is_running := false
 var is_aiming := false
 var is_dead := false
 var is_sleeping := false
+## เปิดหน้าต่างกระเป๋าอยู่ (ระหว่างนี้เดิน/ฟันไม่ได้)
+var is_busy := false
 ## ของที่อยู่ใกล้ที่สุดซึ่งกด E ใช้ได้ตอนนี้ (null = ไม่มี) HUD ใช้แสดงข้อความ "[E] ..."
 var current_interactable: Interactable
+## อาวุธที่ถืออยู่ (null = มือเปล่า)
+var equipped_weapon: ItemData
 
 var _cooldown_left := 0.0
 var _swing_left := 0.0       # ระหว่างท่าฟัน จะไม่หันตัวตามทิศเดิน
@@ -59,14 +68,21 @@ var _footstep_left := 0.0
 
 @onready var health: Health = $Health
 @onready var needs: Needs = $Needs
+@onready var inventory: Inventory = $Inventory
 @onready var model: Node3D = $Model
 @onready var weapon_pivot: Node3D = $Model/WeaponPivot
+@onready var weapon_mesh: MeshInstance3D = $Model/WeaponPivot/Weapon
 @onready var attack_area: Area3D = $AttackArea
 
 
 func _ready() -> void:
 	health.died.connect(_on_died)
+	inventory.changed.connect(_on_inventory_changed)
 	weapon_pivot.rotation = WEAPON_REST
+	# ทำสำเนา mesh ของอาวุธ จะได้เปลี่ยนขนาด/สีตามอาวุธที่ถือ โดยไม่กระทบไฟล์ต้นฉบับ
+	weapon_mesh.mesh = weapon_mesh.mesh.duplicate()
+	weapon_mesh.mesh.material = weapon_mesh.mesh.material.duplicate()
+	_update_weapon_visual()
 
 
 func _physics_process(delta: float) -> void:
@@ -91,6 +107,15 @@ func _physics_process(delta: float) -> void:
 		# หายง่วงแล้ว หรือผู้เล่นกดเดิน = ตื่น
 		if needs.fatigue <= 0.0 or input != Vector2.ZERO:
 			wake_up()
+		return
+
+	if is_busy:
+		# กำลังค้นของ/จัดกระเป๋า: ยืนนิ่ง (แต่เวลายังเดิน ซอมบี้ยังเดินมาได้!)
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		needs.tick(delta, false, false, false)
+		current_interactable = null
 		return
 
 	var direction := _camera_relative(input)
@@ -134,6 +159,7 @@ func take_damage(amount: float) -> void:
 	if is_sleeping:
 		wake_up()
 		say("สะดุ้งตื่น!")
+	attacked.emit()
 	health.take_damage(amount)
 
 
@@ -152,6 +178,58 @@ func wake_up() -> void:
 	is_sleeping = false
 	GameClock.time_scale = 1.0
 	sleep_changed.emit(false)
+
+
+func open_loot(container: LootContainer) -> void:
+	loot_requested.emit(container)
+
+
+## ใช้ไอเทมจากกระเป๋า: อาหาร/น้ำ/ยา = ใช้แล้วหมดไป, อาวุธ = ถือ/เก็บ
+func use_item(item: ItemData) -> void:
+	if not inventory.has(item):
+		return
+	match item.category:
+		ItemData.Category.WEAPON:
+			if equipped_weapon == item:
+				unequip()
+			else:
+				equip(item)
+		ItemData.Category.MISC:
+			say("ใช้%sไม่ได้" % item.display_name)
+		_:
+			needs.eat(item.hunger_relief)
+			needs.drink(item.thirst_relief)
+			health.heal(item.heal)
+			inventory.remove(item)
+			say("%s%sแล้ว" % [item.get_use_verb(), item.display_name])
+
+
+func equip(item: ItemData) -> void:
+	equipped_weapon = item
+	_update_weapon_visual()
+	say("ถือ" + item.display_name)
+
+
+func unequip() -> void:
+	equipped_weapon = null
+	_update_weapon_visual()
+
+
+## ถ้าอาวุธที่ถืออยู่ถูกย้ายออกจากกระเป๋า (เช่นเอาไปใส่ตู้) ก็ต้องปล่อยมือ
+func _on_inventory_changed() -> void:
+	if equipped_weapon and not inventory.has(equipped_weapon):
+		unequip()
+
+
+## แสดงอาวุธในมือตามที่ถือจริง: ความยาวและสีมาจาก ItemData
+func _update_weapon_visual() -> void:
+	weapon_pivot.visible = equipped_weapon != null
+	if equipped_weapon == null:
+		return
+	var mesh := weapon_mesh.mesh as BoxMesh
+	mesh.size = Vector3(0.07, 0.07, equipped_weapon.weapon_length)
+	(mesh.material as StandardMaterial3D).albedo_color = equipped_weapon.color
+	weapon_mesh.position.z = -equipped_weapon.weapon_length * 0.5
 
 
 ## หาของที่ใช้ได้ซึ่งอยู่ใกล้ที่สุด แล้วถ้ากด E ก็ใช้มันเลย
@@ -181,8 +259,9 @@ func _can_reach(item: Interactable) -> bool:
 	var hit := get_world_3d().direct_space_state.intersect_ray(query)
 	if hit.is_empty():
 		return true
+	# ชนตัวของชิ้นนั้นเอง (เช่นตัวตู้เย็น) หรือชนสิ่งที่ของชิ้นนั้นติดอยู่ (เช่นท้ายรถติดกับตัวรถ) = ใช้ได้
 	var collider := hit.collider as Node
-	return collider == item or item.is_ancestor_of(collider)
+	return collider == item or item.is_ancestor_of(collider) or collider.is_ancestor_of(item)
 
 
 ## ทุกๆ 0.4 วินาทีที่ขยับ จะปล่อยเสียงฝีเท้าออกไป (วิ่ง = ดังกว่า)
@@ -202,8 +281,9 @@ func _update_attack(delta: float) -> void:
 
 
 func _start_attack() -> void:
-	# แรงเหลือน้อย = เหนื่อย ฟันช้าลงเท่าตัว
-	_cooldown_left = attack_cooldown * (2.0 if needs.endurance < 10.0 else 1.0)
+	# อาวุธแต่ละชิ้นเร็วไม่เท่ากัน และถ้าแรงเหลือน้อย (เหนื่อย) จะช้าลงเท่าตัว
+	var cooldown := equipped_weapon.attack_cooldown if equipped_weapon else unarmed_cooldown
+	_cooldown_left = cooldown * (2.0 if needs.endurance < 10.0 else 1.0)
 	_swing_left = SWING_TIME
 	needs.use_endurance(attack_endurance_cost)
 	# หันไปทางเมาส์ทันที แล้วเหวี่ยงอาวุธจากขวาไปซ้าย
@@ -223,10 +303,11 @@ func _start_attack() -> void:
 func _land_attack() -> void:
 	if is_dead:
 		return
+	var damage := equipped_weapon.damage if equipped_weapon else unarmed_damage
 	var push := -global_basis.z * knockback
 	for body in attack_area.get_overlapping_bodies():
 		if body is Zombie:
-			body.take_hit(attack_damage, push)
+			body.take_hit(damage, push)
 
 
 func _on_died() -> void:

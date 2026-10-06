@@ -1,6 +1,11 @@
 [gd_scene format=3]
 
-[ext_resource type="Script" path="res://interactables/food_source.gd" id="1_food"]
+[ext_resource type="Script" path="res://interactables/loot_container.gd" id="1_loot"]
+[ext_resource type="Script" path="res://items/item_data.gd" id="2_item_data"]
+[ext_resource type="Resource" path="res://items/apple.tres" id="3_apple"]
+[ext_resource type="Resource" path="res://items/soda.tres" id="4_soda"]
+[ext_resource type="Resource" path="res://items/water_bottle.tres" id="5_water"]
+[ext_resource type="Resource" path="res://items/canned_beans.tres" id="6_beans"]
 
 [sub_resource type="StandardMaterial3D" id="Mat_fridge"]
 albedo_color = Color(0.88, 0.9, 0.9, 1)
@@ -10,10 +15,11 @@ roughness = 0.4
 albedo_color = Color(0.25, 0.25, 0.27, 1)
 
 [node name="Fridge" type="Node3D"]
-script = ExtResource("1_food")
+script = ExtResource("1_loot")
 display_name = "ตู้เย็น"
-food_name = "อาหาร"
-servings = 6
+possible_items = Array[ExtResource("2_item_data")]([ExtResource("3_apple"), ExtResource("3_apple"), ExtResource("4_soda"), ExtResource("5_water"), ExtResource("6_beans")])
+min_items = 2
+max_items = 5
 
 [node name="Body" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 0.9, 0)

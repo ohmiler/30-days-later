@@ -18,6 +18,8 @@ var _toast_tween: Tween
 @onready var damage_flash: ColorRect = $DamageFlash
 @onready var sleep_overlay: Control = $SleepOverlay
 @onready var zombie_count: Label = $ZombieCount
+@onready var equipped_label: Label = $Equipped
+@onready var inventory_screen: Control = $InventoryScreen
 @onready var death_screen: Control = $DeathScreen
 
 
@@ -32,6 +34,7 @@ func _ready() -> void:
 	player.health.died.connect(_on_player_died)
 	player.message.connect(_show_toast)
 	player.sleep_changed.connect(_on_sleep_changed)
+	inventory_screen.setup(player)
 
 
 func _process(_delta: float) -> void:
@@ -48,6 +51,8 @@ func _process(_delta: float) -> void:
 
 	var item := player.current_interactable
 	prompt_label.text = "[E] " + item.get_prompt() if item else ""
+	var weapon := player.equipped_weapon
+	equipped_label.text = "ถือ: " + (weapon.display_name if weapon else "มือเปล่า (ผลัก)")
 
 
 func _unhandled_input(event: InputEvent) -> void:

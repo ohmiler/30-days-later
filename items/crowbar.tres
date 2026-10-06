@@ -1,0 +1,14 @@
+[gd_resource type="Resource" script_class="ItemData" format=3]
+
+[ext_resource type="Script" path="res://items/item_data.gd" id="1_item"]
+
+[resource]
+script = ExtResource("1_item")
+display_name = "ชะแลง"
+description = "เหล็กหนัก ฟาดทีเดียวแทบล้ม แต่เหวี่ยงช้า"
+category = 3
+weight = 2.0
+color = Color(0.55, 0.12, 0.1, 1)
+damage = 50.0
+attack_cooldown = 0.85
+weapon_length = 0.8

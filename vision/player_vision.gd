@@ -16,12 +16,18 @@ const WORLD_LAYER := 1
 ## ระยะรอบตัวที่รู้สึกได้แม้อยู่ข้างหลัง (เมตร)
 @export var near_radius := 2.0
 @export var view_distance := 30.0
+## ตอนกลางคืนมองเห็นได้ใกล้แค่นี้
+@export var night_view_distance := 9.0
+## ความสว่างของส่วนที่มองไม่เห็น (กลางวัน / กลางคืน)
+@export var hidden_brightness := 0.35
+@export var night_hidden_brightness := 0.2
 ## ความสูงของสายตา ของที่เตี้ยกว่านี้ (โต๊ะ รั้ว) จะไม่บังสายตา แต่หน้าต่างมองลอดได้
 @export var eye_height := 1.4
 
 var _distances := PackedFloat32Array()
 var _eye := Vector3.ZERO
 var _facing_angle := 0.0
+var _current_view_distance := 30.0  # เปลี่ยนตามกลางวัน/กลางคืน
 var _query := PhysicsRayQueryParameters3D.new()
 
 @onready var overlay: MeshInstance3D = $Overlay
@@ -34,7 +40,6 @@ func _ready() -> void:
 	_query.collision_mask = WORLD_LAYER
 	_material.set_shader_parameter("half_fov", deg_to_rad(fov_degrees) * 0.5)
 	_material.set_shader_parameter("near_radius", near_radius)
-	_material.set_shader_parameter("view_distance", view_distance)
 
 
 func _physics_process(_delta: float) -> void:
@@ -58,12 +63,17 @@ func _process(_delta: float) -> void:
 	_material.set_shader_parameter("eye_position", _eye)
 	_material.set_shader_parameter("facing_angle", _facing_angle)
 
+	var daylight := GameClock.get_daylight()
+	_current_view_distance = lerpf(night_view_distance, view_distance, daylight)
+	_material.set_shader_parameter("view_distance", _current_view_distance)
+	_material.set_shader_parameter("hidden_brightness", lerpf(night_hidden_brightness, hidden_brightness, daylight))
+
 
 ## ผู้เล่นมองเห็นจุดนี้ไหม (ใช้กฎเดียวกับ shader: อยู่ในระยะ + ในกรวยหรือใกล้ตัว + ไม่มีกำแพงบัง)
 func can_see(point: Vector3) -> bool:
 	var to_point := Vector2(point.x - _eye.x, point.z - _eye.z)
 	var distance := to_point.length()
-	if distance > view_distance:
+	if distance > _current_view_distance:
 		return false
 	var angle := atan2(to_point.y, to_point.x)
 	if distance > near_radius and absf(angle_difference(_facing_angle, angle)) > deg_to_rad(fov_degrees) * 0.5:

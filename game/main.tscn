@@ -6,6 +6,8 @@
 [ext_resource type="PackedScene" path="res://zombie/zombie.tscn" id="4_zombie"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="5_hud"]
 [ext_resource type="PackedScene" path="res://vision/player_vision.tscn" id="6_vision"]
+[ext_resource type="Script" path="res://game/main.gd" id="7_main"]
+[ext_resource type="Script" path="res://world/day_night.gd" id="8_day_night"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -17,6 +19,7 @@ tonemap_mode = 2
 ssao_enabled = true
 
 [node name="Main" type="Node3D" unique_id=1200265094]
+script = ExtResource("7_main")
 
 [node name="WorldEnvironment" type="WorldEnvironment" parent="." unique_id=1435462788]
 environment = SubResource("Environment_main")
@@ -25,6 +28,11 @@ environment = SubResource("Environment_main")
 transform = Transform3D(0.819152, 0.469846, -0.32899, 0, 0.573576, 0.819152, 0.573576, -0.67101, 0.469846, 0, 10, 0)
 light_energy = 1.1
 shadow_enabled = true
+
+[node name="DayNight" type="Node" parent="." node_paths=PackedStringArray("sun", "world_environment")]
+script = ExtResource("8_day_night")
+sun = NodePath("../Sun")
+world_environment = NodePath("../WorldEnvironment")
 
 [node name="TestMap" parent="." unique_id=1707897509 instance=ExtResource("1_map")]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -0.0019731522, 0.009959698, -0.0038900375)

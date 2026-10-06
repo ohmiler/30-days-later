@@ -9,8 +9,36 @@ corner_radius_top_right = 3
 corner_radius_bottom_right = 3
 corner_radius_bottom_left = 3
 
-[sub_resource type="StyleBoxFlat" id="StyleBox_bar_fill"]
+[sub_resource type="StyleBoxFlat" id="StyleBox_health"]
 bg_color = Color(0.75, 0.16, 0.14, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_endurance"]
+bg_color = Color(0.85, 0.8, 0.25, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_hunger"]
+bg_color = Color(0.9, 0.55, 0.2, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_thirst"]
+bg_color = Color(0.25, 0.55, 0.9, 1)
+corner_radius_top_left = 3
+corner_radius_top_right = 3
+corner_radius_bottom_right = 3
+corner_radius_bottom_left = 3
+
+[sub_resource type="StyleBoxFlat" id="StyleBox_rest"]
+bg_color = Color(0.6, 0.42, 0.85, 1)
 corner_radius_top_left = 3
 corner_radius_top_right = 3
 corner_radius_bottom_right = 3
@@ -27,19 +55,56 @@ grow_vertical = 2
 mouse_filter = 2
 color = Color(0.7, 0, 0, 0.35)
 
+[node name="SleepOverlay" type="ColorRect" parent="."]
+visible = false
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+mouse_filter = 2
+color = Color(0.01, 0.01, 0.04, 0.75)
+
+[node name="Message" type="Label" parent="SleepOverlay"]
+anchor_right = 1.0
+anchor_bottom = 1.0
+grow_horizontal = 2
+grow_vertical = 2
+theme_override_colors/font_color = Color(0.75, 0.8, 1, 1)
+theme_override_font_sizes/font_size = 28
+text = "กำลังนอนหลับ... Zzz
+
+(กด WASD เพื่อตื่น)"
+horizontal_alignment = 1
+vertical_alignment = 1
+
 [node name="Controls" type="Label" parent="."]
 offset_left = 16.0
 offset_top = 12.0
 offset_right = 380.0
-offset_bottom = 150.0
+offset_bottom = 170.0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
 theme_override_font_sizes/font_size = 16
 text = "WASD — เดิน
-Shift ค้าง — วิ่ง (เสียงดัง!)
+Shift ค้าง — วิ่ง (เสียงดัง! ใช้แรง)
 คลิกขวาค้าง — เล็ง (หันตามเมาส์)
 คลิกซ้าย — ฟัน
+E — ใช้ของ (ดื่มน้ำ / กิน / นอน)
 ลูกกลิ้งเมาส์ / + - — ซูม"
+
+[node name="Clock" type="Label" parent="."]
+anchor_left = 0.5
+anchor_right = 0.5
+offset_left = -160.0
+offset_top = 10.0
+offset_right = 160.0
+offset_bottom = 44.0
+grow_horizontal = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 22
+text = "วันที่ 1   08:00"
+horizontal_alignment = 1
 
 [node name="ZombieCount" type="Label" parent="."]
 anchor_left = 1.0
@@ -55,32 +120,178 @@ theme_override_font_sizes/font_size = 18
 text = "ซอมบี้: 0"
 horizontal_alignment = 2
 
-[node name="HealthLabel" type="Label" parent="."]
+[node name="Moodles" type="Label" parent="."]
+anchor_left = 1.0
+anchor_right = 1.0
+offset_left = -320.0
+offset_top = 44.0
+offset_right = -16.0
+offset_bottom = 200.0
+grow_horizontal = 0
+theme_override_colors/font_color = Color(1, 0.75, 0.35, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 5
+theme_override_font_sizes/font_size = 17
+horizontal_alignment = 2
+
+[node name="Stats" type="VBoxContainer" parent="."]
 anchor_top = 1.0
 anchor_bottom = 1.0
 offset_left = 16.0
-offset_top = -62.0
-offset_right = 200.0
-offset_bottom = -40.0
+offset_top = -146.0
+offset_right = 316.0
+offset_bottom = -16.0
+grow_vertical = 0
+mouse_filter = 2
+theme_override_constants/separation = 4
+
+[node name="Health" type="HBoxContainer" parent="Stats"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Stats/Health"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "พลังชีวิต"
+
+[node name="Bar" type="ProgressBar" parent="Stats/Health"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBox_bar_bg")
+theme_override_styles/fill = SubResource("StyleBox_health")
+value = 100.0
+show_percentage = false
+
+[node name="Endurance" type="HBoxContainer" parent="Stats"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Stats/Endurance"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "แรง"
+
+[node name="Bar" type="ProgressBar" parent="Stats/Endurance"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBox_bar_bg")
+theme_override_styles/fill = SubResource("StyleBox_endurance")
+value = 100.0
+show_percentage = false
+
+[node name="Hunger" type="HBoxContainer" parent="Stats"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Stats/Hunger"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "อาหาร"
+
+[node name="Bar" type="ProgressBar" parent="Stats/Hunger"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBox_bar_bg")
+theme_override_styles/fill = SubResource("StyleBox_hunger")
+value = 100.0
+show_percentage = false
+
+[node name="Thirst" type="HBoxContainer" parent="Stats"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Stats/Thirst"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "น้ำ"
+
+[node name="Bar" type="ProgressBar" parent="Stats/Thirst"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBox_bar_bg")
+theme_override_styles/fill = SubResource("StyleBox_thirst")
+value = 100.0
+show_percentage = false
+
+[node name="Rest" type="HBoxContainer" parent="Stats"]
+layout_mode = 2
+mouse_filter = 2
+
+[node name="Name" type="Label" parent="Stats/Rest"]
+custom_minimum_size = Vector2(96, 0)
+layout_mode = 2
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 4
+theme_override_font_sizes/font_size = 14
+text = "พักผ่อน"
+
+[node name="Bar" type="ProgressBar" parent="Stats/Rest"]
+custom_minimum_size = Vector2(0, 14)
+layout_mode = 2
+size_flags_horizontal = 3
+size_flags_vertical = 4
+mouse_filter = 2
+theme_override_styles/background = SubResource("StyleBox_bar_bg")
+theme_override_styles/fill = SubResource("StyleBox_rest")
+value = 100.0
+show_percentage = false
+
+[node name="Toast" type="Label" parent="."]
+anchor_left = 0.5
+anchor_top = 1.0
+anchor_right = 0.5
+anchor_bottom = 1.0
+offset_left = -300.0
+offset_top = -136.0
+offset_right = 300.0
+offset_bottom = -106.0
+grow_horizontal = 2
 grow_vertical = 0
 theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
 theme_override_constants/outline_size = 5
-theme_override_font_sizes/font_size = 15
-text = "พลังชีวิต"
+theme_override_font_sizes/font_size = 18
+horizontal_alignment = 1
 
-[node name="HealthBar" type="ProgressBar" parent="."]
+[node name="Prompt" type="Label" parent="."]
+anchor_left = 0.5
 anchor_top = 1.0
+anchor_right = 0.5
 anchor_bottom = 1.0
-offset_left = 16.0
-offset_top = -38.0
-offset_right = 276.0
-offset_bottom = -20.0
+offset_left = -300.0
+offset_top = -100.0
+offset_right = 300.0
+offset_bottom = -68.0
+grow_horizontal = 2
 grow_vertical = 0
-mouse_filter = 2
-theme_override_styles/background = SubResource("StyleBox_bar_bg")
-theme_override_styles/fill = SubResource("StyleBox_bar_fill")
-value = 100.0
-show_percentage = false
+theme_override_colors/font_color = Color(1, 0.95, 0.6, 1)
+theme_override_colors/font_outline_color = Color(0, 0, 0, 1)
+theme_override_constants/outline_size = 6
+theme_override_font_sizes/font_size = 20
+horizontal_alignment = 1
 
 [node name="DeathScreen" type="ColorRect" parent="."]
 visible = false

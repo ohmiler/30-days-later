@@ -190,7 +190,8 @@ func _can_see_player() -> bool:
 	var to_player := player.global_position - global_position
 	to_player.y = 0.0
 	var distance := to_player.length()
-	if distance > sight_range:
+	# กลางคืนซอมบี้ก็มองเห็นได้ใกล้ลงครึ่งหนึ่ง
+	if distance > sight_range * lerpf(0.5, 1.0, GameClock.get_daylight()):
 		return false
 	# ถ้าอยู่ใกล้มากๆ ซอมบี้รู้ตัวแม้ผู้เล่นอยู่ข้างหลัง
 	if distance > 1.5:

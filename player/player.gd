@@ -1,6 +1,11 @@
 class_name Player
 extends CharacterBody3D
-## ตัวละครผู้เล่น: เดิน วิ่ง เล็ง (คลิกขวาค้าง = หันตามเมาส์ เหมือน Project Zomboid) และฟัน (คลิกซ้าย)
+## ตัวละครผู้เล่น: เดิน วิ่ง เล็ง (คลิกขวาค้าง = หันตามเมาส์ เหมือน Project Zomboid) ฟัน (คลิกซ้าย)
+## และใช้ของรอบตัว (กด E: ดื่มน้ำ กินอาหาร นอน)
+
+## ข้อความสั้นๆ ที่ตัวละครอยากบอกผู้เล่น (HUD จะแสดงขึ้นจอ)
+signal message(text: String)
+signal sleep_changed(sleeping: bool)
 
 @export_group("Movement")
 ## ความเร็วเดิน (เมตร/วินาที)
@@ -22,6 +27,8 @@ extends CharacterBody3D
 @export var attack_windup := 0.1
 ## แรงผลักซอมบี้ให้ถอยหลังเมื่อโดนตี
 @export var knockback := 4.0
+## ฟัน 1 ครั้งใช้แรงเท่าไหร่ (แรงเหลือน้อยจะฟันช้าลง)
+@export var attack_endurance_cost := 6.0
 
 @export_group("Noise")
 ## รัศมีเสียงฝีเท้าตอนเดิน (เมตร) ซอมบี้ในรัศมีนี้จะได้ยิน
@@ -33,16 +40,25 @@ extends CharacterBody3D
 const FOOTSTEP_INTERVAL := 0.4
 const SWING_TIME := 0.3
 const WEAPON_REST := Vector3(-0.5, 0.3, 0.0)
+const WORLD_LAYER := 1
+## ของที่อยู่ใกล้กว่านี้ (เมตร) ถึงจะกด E ใช้ได้
+const INTERACT_RANGE := 1.8
+## ตอนนอน เวลาในเกมเดินเร็วขึ้นกี่เท่า
+const SLEEP_TIME_SCALE := 60.0
 
 var is_running := false
 var is_aiming := false
 var is_dead := false
+var is_sleeping := false
+## ของที่อยู่ใกล้ที่สุดซึ่งกด E ใช้ได้ตอนนี้ (null = ไม่มี) HUD ใช้แสดงข้อความ "[E] ..."
+var current_interactable: Interactable
 
 var _cooldown_left := 0.0
 var _swing_left := 0.0       # ระหว่างท่าฟัน จะไม่หันตัวตามทิศเดิน
 var _footstep_left := 0.0
 
 @onready var health: Health = $Health
+@onready var needs: Needs = $Needs
 @onready var model: Node3D = $Model
 @onready var weapon_pivot: Node3D = $Model/WeaponPivot
 @onready var attack_area: Area3D = $AttackArea
@@ -66,10 +82,21 @@ func _physics_process(delta: float) -> void:
 
 	# อ่านปุ่ม WASD เป็น Vector2 แล้วแปลงเป็นทิศในโลก 3D ตามมุมกล้อง
 	var input := Input.get_vector("move_left", "move_right", "move_up", "move_down")
+
+	if is_sleeping:
+		velocity.x = 0.0
+		velocity.z = 0.0
+		move_and_slide()
+		needs.tick(delta, false, false, true)
+		# หายง่วงแล้ว หรือผู้เล่นกดเดิน = ตื่น
+		if needs.fatigue <= 0.0 or input != Vector2.ZERO:
+			wake_up()
+		return
+
 	var direction := _camera_relative(input)
 
 	is_aiming = Input.is_action_pressed("aim")
-	is_running = Input.is_action_pressed("run") and not is_aiming and direction != Vector3.ZERO
+	is_running = Input.is_action_pressed("run") and not is_aiming and direction != Vector3.ZERO and needs.can_run()
 
 	var speed := walk_speed
 	if is_aiming:
@@ -84,8 +111,10 @@ func _physics_process(delta: float) -> void:
 	velocity.z = horizontal.z
 	move_and_slide()
 
+	needs.tick(delta, is_running, direction != Vector3.ZERO, false)
 	_update_footsteps(delta)
 	_update_attack(delta)
+	_update_interaction()
 
 	# ตอนเล็งให้หันตามเมาส์ ถ้าไม่เล็งให้หันไปทางที่เดิน (ระหว่างฟันไม่หัน)
 	var look_direction: Vector3 = _mouse_direction() if is_aiming else direction
@@ -102,7 +131,58 @@ func _process(_delta: float) -> void:
 
 
 func take_damage(amount: float) -> void:
+	if is_sleeping:
+		wake_up()
+		say("สะดุ้งตื่น!")
 	health.take_damage(amount)
+
+
+func say(text: String) -> void:
+	message.emit(text)
+
+
+func start_sleeping() -> void:
+	is_sleeping = true
+	current_interactable = null
+	GameClock.time_scale = SLEEP_TIME_SCALE
+	sleep_changed.emit(true)
+
+
+func wake_up() -> void:
+	is_sleeping = false
+	GameClock.time_scale = 1.0
+	sleep_changed.emit(false)
+
+
+## หาของที่ใช้ได้ซึ่งอยู่ใกล้ที่สุด แล้วถ้ากด E ก็ใช้มันเลย
+func _update_interaction() -> void:
+	current_interactable = _find_interactable()
+	if current_interactable and Input.is_action_just_pressed("interact"):
+		current_interactable.interact(self)
+
+
+func _find_interactable() -> Interactable:
+	var best: Interactable = null
+	var best_distance := INTERACT_RANGE
+	for item: Interactable in get_tree().get_nodes_in_group("interactables"):
+		var offset := item.global_position - global_position
+		offset.y = 0.0
+		var distance := offset.length()
+		if distance < best_distance and _can_reach(item):
+			best = item
+			best_distance = distance
+	return best
+
+
+## ห้ามใช้ของทะลุกำแพง: ยิงเส้นจากอกไปที่ของ ถ้าชนอย่างอื่นก่อนแปลว่ามีอะไรขวาง
+func _can_reach(item: Interactable) -> bool:
+	var chest := global_position + Vector3.UP * 1.2
+	var query := PhysicsRayQueryParameters3D.create(chest, item.get_focus_point(), WORLD_LAYER)
+	var hit := get_world_3d().direct_space_state.intersect_ray(query)
+	if hit.is_empty():
+		return true
+	var collider := hit.collider as Node
+	return collider == item or item.is_ancestor_of(collider)
 
 
 ## ทุกๆ 0.4 วินาทีที่ขยับ จะปล่อยเสียงฝีเท้าออกไป (วิ่ง = ดังกว่า)
@@ -122,8 +202,10 @@ func _update_attack(delta: float) -> void:
 
 
 func _start_attack() -> void:
-	_cooldown_left = attack_cooldown
+	# แรงเหลือน้อย = เหนื่อย ฟันช้าลงเท่าตัว
+	_cooldown_left = attack_cooldown * (2.0 if needs.endurance < 10.0 else 1.0)
 	_swing_left = SWING_TIME
+	needs.use_endurance(attack_endurance_cost)
 	# หันไปทางเมาส์ทันที แล้วเหวี่ยงอาวุธจากขวาไปซ้าย
 	var direction := _mouse_direction()
 	if direction != Vector3.ZERO:
@@ -148,7 +230,10 @@ func _land_attack() -> void:
 
 
 func _on_died() -> void:
+	if is_sleeping:
+		wake_up()
 	is_dead = true
+	current_interactable = null
 	# ล้มลงไปนอนกับพื้น
 	var tween := create_tween().set_parallel()
 	tween.tween_property(model, "rotation:x", PI * 0.5, 0.5)

@@ -6,6 +6,27 @@
 [ext_resource type="PackedScene" path="res://world/props/tree.tscn" id="4_tree"]
 [ext_resource type="PackedScene" path="res://world/props/car.tscn" id="5_car"]
 [ext_resource type="Script" path="res://world/map_navigation.gd" id="6_navigation"]
+[ext_resource type="Script" path="res://world/building.gd" id="7_building"]
+
+[sub_resource type="ShaderMaterial" id="Mat_roof_red"]
+render_priority = 0
+shader = ExtResource("2_see_through")
+shader_parameter/albedo = Color(0.45, 0.2, 0.16, 1)
+shader_parameter/roughness = 0.8
+shader_parameter/cutout_radius = 2.0
+
+[sub_resource type="ShaderMaterial" id="Mat_roof_slate"]
+render_priority = 0
+shader = ExtResource("2_see_through")
+shader_parameter/albedo = Color(0.28, 0.31, 0.36, 1)
+shader_parameter/roughness = 0.8
+shader_parameter/cutout_radius = 2.0
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_interior_a"]
+size = Vector3(9.6, 3, 7.6)
+
+[sub_resource type="BoxShape3D" id="BoxShape3D_interior_b"]
+size = Vector3(6.6, 3, 6.6)
 
 [sub_resource type="NavigationMesh" id="NavigationMesh_map"]
 cell_height = 0.1
@@ -81,6 +102,7 @@ material = SubResource("Mat_road_line")
 
 [node name="HouseA" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -4, 0, -4)
+script = ExtResource("7_building")
 
 [node name="Walls" type="CSGCombiner3D" parent="HouseA"]
 use_collision = true
@@ -170,8 +192,24 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 4.5, 0.5, 0.8)
 size = Vector3(0.5, 1, 1.2)
 material = SubResource("Mat_wood")
 
+[node name="Roof" type="CSGPolygon3D" parent="HouseA"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 4.4)
+polygon = PackedVector2Array(-5.4, 0, 5.4, 0, 0, 1.6)
+depth = 8.8
+material = SubResource("Mat_roof_red")
+
+[node name="Interior" type="Area3D" parent="HouseA"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HouseA/Interior"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_interior_a")
+
 [node name="HouseB" type="Node3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 9, 0, -5)
+script = ExtResource("7_building")
 
 [node name="Walls" type="CSGCombiner3D" parent="HouseB"]
 use_collision = true
@@ -228,6 +266,21 @@ material = SubResource("Mat_wood")
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -1.5, 0.375, -0.5)
 size = Vector3(1, 0.75, 1)
 material = SubResource("Mat_wood")
+
+[node name="Roof" type="CSGPolygon3D" parent="HouseB"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 3, 3.9)
+polygon = PackedVector2Array(-3.9, 0, 3.9, 0, 0, 1.4)
+depth = 7.8
+material = SubResource("Mat_roof_slate")
+
+[node name="Interior" type="Area3D" parent="HouseB"]
+collision_layer = 0
+collision_mask = 2
+monitorable = false
+
+[node name="CollisionShape3D" type="CollisionShape3D" parent="HouseB/Interior"]
+transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 0, 1.5, 0)
+shape = SubResource("BoxShape3D_interior_b")
 
 [node name="BackFence" type="CSGBox3D" parent="."]
 transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, 1, 0.55, -12)

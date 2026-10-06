@@ -1,0 +1,20 @@
+[gd_scene format=3]
+
+[ext_resource type="Script" path="res://vision/player_vision.gd" id="1_vision"]
+[ext_resource type="Shader" path="res://vision/vision_overlay.gdshader" id="2_overlay"]
+
+[sub_resource type="QuadMesh" id="QuadMesh_overlay"]
+size = Vector2(2, 2)
+
+[sub_resource type="ShaderMaterial" id="ShaderMaterial_overlay"]
+render_priority = -128
+shader = ExtResource("2_overlay")
+
+[node name="PlayerVision" type="Node3D"]
+script = ExtResource("1_vision")
+
+[node name="Overlay" type="MeshInstance3D" parent="."]
+cast_shadow = 0
+extra_cull_margin = 16384.0
+mesh = SubResource("QuadMesh_overlay")
+material_override = SubResource("ShaderMaterial_overlay")

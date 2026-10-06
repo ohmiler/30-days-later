@@ -53,6 +53,9 @@ var _idle_duration := 0.0
 var _repath_left := 0.0
 var _attack_landed := false
 var _base_color := Color.WHITE
+var _seen := false
+var _fade := 0.0                # 0 = มองไม่เห็นเลย, 1 = เห็นชัด
+var _meshes: Array[Node] = []
 
 @onready var agent: NavigationAgent3D = $NavigationAgent3D
 @onready var health: Health = $Health
@@ -66,9 +69,24 @@ func _ready() -> void:
 	home = global_position
 	rotation.y = randf() * TAU
 	_base_color = (body_mesh.material_override as StandardMaterial3D).albedo_color
+	_meshes = model.find_children("*", "MeshInstance3D")
+	_apply_fade()  # เริ่มเกมมาแบบมองไม่เห็น จนกว่าผู้เล่นจะมองมาเจอ
 	health.died.connect(_die)
 	NoiseBus.noise_made.connect(_on_noise)
 	_enter_state(State.IDLE)
+
+
+## PlayerVision เรียกทุกเฟรมเพื่อบอกว่าผู้เล่นมองเห็นซอมบี้ตัวนี้ไหม
+func set_seen(seen: bool) -> void:
+	_seen = seen
+
+
+func _process(delta: float) -> void:
+	# ค่อยๆ ปรากฏ/จางหาย แทนการโผล่ทันที (ศพเห็นตลอด)
+	var target := 1.0 if _seen or state == State.DEAD else 0.0
+	if _fade != target:
+		_fade = move_toward(_fade, target, delta * 4.0)
+		_apply_fade()
 
 
 func _physics_process(delta: float) -> void:
@@ -230,6 +248,13 @@ func _update_label() -> void:
 			state_label.modulate = Color(1.0, 0.25, 0.2)
 		_:
 			state_label.text = ""
+
+
+func _apply_fade() -> void:
+	model.visible = _fade > 0.0
+	state_label.visible = _fade > 0.5
+	for mesh: MeshInstance3D in _meshes:
+		mesh.transparency = 1.0 - _fade
 
 
 func _flash() -> void:

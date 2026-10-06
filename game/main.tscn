@@ -5,6 +5,7 @@
 [ext_resource type="PackedScene" path="res://camera/iso_camera.tscn" id="3_camera"]
 [ext_resource type="PackedScene" path="res://zombie/zombie.tscn" id="4_zombie"]
 [ext_resource type="PackedScene" path="res://ui/hud.tscn" id="5_hud"]
+[ext_resource type="PackedScene" path="res://vision/player_vision.tscn" id="6_vision"]
 
 [sub_resource type="Environment" id="Environment_main"]
 background_mode = 1
@@ -65,6 +66,9 @@ transform = Transform3D(1, 0, 0, 0, 1, 0, 0, 0, 1, -18, 0, -8)
 
 [node name="IsoCamera" parent="." unique_id=2033072276 node_paths=PackedStringArray("target") instance=ExtResource("3_camera")]
 target = NodePath("../Player")
+
+[node name="PlayerVision" parent="." node_paths=PackedStringArray("player") instance=ExtResource("6_vision")]
+player = NodePath("../Player")
 
 [node name="HUD" parent="." node_paths=PackedStringArray("player") instance=ExtResource("5_hud")]
 player = NodePath("../Player")
